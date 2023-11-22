@@ -40,7 +40,7 @@ float lidar_t::make_measurement_continous(){
 
 void lidar_t::configure(){
 
-    my_lidar->configure(1);  
+    my_lidar->configure(0);  
     
     unsigned long time_now = millis() ;  
 
