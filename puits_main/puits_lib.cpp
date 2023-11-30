@@ -4,25 +4,10 @@ lidar_t::lidar_t(){
     my_lidar = new LIDARLite_v3HP ;
 } 
  
-// lidar make measurement funciton
-float lidar_t::make_measurement(){
-    
-    uint16_t distance_raw;
-        
-    my_lidar->waitForBusy();                  // 1. Wait
-    my_lidar->takeRange();                    // 2. Trigger range measurement.
-    my_lidar->waitForBusy();                  // 3. Wait for busyFlag to indicate device is idle. 
-    
-    distance_raw = my_lidar->readDistance();    // 4. Read new distance data from device registers
-        
-    dist = (float)distance_raw * 0.01 ;           // converts from [cm] to [m]
-
-    return dist ;
-}
-
 float lidar_t::make_measurement_continous(){
     
     uint16_t distance_raw;
+
     
     if (my_lidar->getBusyFlag() == 0) {
         
@@ -38,6 +23,29 @@ float lidar_t::make_measurement_continous(){
    
 }
 
+// lidar make measurement funciton
+float lidar_t::make_measurement(){
+    
+    uint16_t distance_raw;
+
+    unsigned long time_now = millis() ;  
+    
+    // loop for 30ms
+    while( millis() < (time_now + 30 ) ){
+        make_measurement_continous() ;
+    }
+    
+    my_lidar->waitForBusy();                  // 1. Wait
+    my_lidar->takeRange();                    // 2. Trigger range measurement.
+    my_lidar->waitForBusy();                  // 3. Wait for busyFlag to indicate device is idle. 
+    
+    distance_raw = my_lidar->readDistance();    // 4. Read new distance data from device registers
+        
+    dist = (float)distance_raw * 0.01 ;           // converts from [cm] to [m]
+
+    return dist ;
+}
+
 void lidar_t::configure(){
 
     my_lidar->configure(0);  
@@ -45,7 +53,7 @@ void lidar_t::configure(){
     unsigned long time_now = millis() ;  
 
     // loop for 100ms
-    while( millis() < (time_now + 100 ) ){
+    while( millis() < (time_now + 500 ) ){
         make_measurement_continous() ;
     }
     
