@@ -19,7 +19,8 @@ void setup() {
 
 // put your main code here, to run repeatedly:
 void loop() {
-    
+    unsigned long time_now = millis() ; 
+     
     puit.make_measurement() ;
 
     // essentials
@@ -28,9 +29,11 @@ void loop() {
         puit.lidar.dist, puit.ir_sensor.object_temp, puit.cmos_sensor.ambient_temp) ;
     */
     
-    sprintf(buffer, "{ \"lidar_distance\" : % 2.2f , \"ir_sensor\" : %2.2f , \"cmos_sensor\" : %2.2f } \n ",
-        puit.lidar.dist, puit.ir_sensor.object_temp, puit.cmos_sensor.ambient_temp) ;
+    //sprintf(buffer, "{ \"lidar_distance\" : % 2.2f , \"ir_sensor\" : %2.1f , \"cmos_sensor\" : %2.1f } \n",
+    //    puit.lidar.dist_average, puit.ir_sensor.object_temp_average, puit.cmos_sensor.ambient_temp_average) ;
     
+    sprintf(buffer, " % 2.2f , % 2.2f , % 2.2f \n",
+        puit.lidar.dist_average, puit.ir_sensor.object_temp_average, puit.cmos_sensor.ambient_temp_average) ;
     
     
     // full
@@ -40,5 +43,7 @@ void loop() {
     Serial.print(buffer) ;
 
     toggle_pin(13);
-    delay(500);
+    while( millis() < (time_now + 1000 ) ){
+       
+    }
 }

@@ -8,18 +8,22 @@ float lidar_t::make_measurement_continous(){
     
     uint16_t distance_raw;
 
-    
+    while( my_lidar->getBusyFlag() != 0 ){
+        
+    }
+
     if (my_lidar->getBusyFlag() == 0) {
         
         my_lidar->takeRange();    // Trigger the next range measurement
 
         distance_raw = my_lidar->readDistance();  // Read new distance data from device registers
 
-        //dist = (float)distance_raw * 0.01 ;     // converts from [cm] to [m]
-    
+        dist = (float)distance_raw * 0.01 ;     // converts from [cm] to [m]
+        
+        dist_average = dist * 0.1 + dist_average * 0.9 ;
     }
 
-    return distance_raw ;
+    return dist_average ;
    
 }
 
@@ -32,7 +36,8 @@ float lidar_t::make_measurement(){
     
     // loop for 30ms
     while( millis() < (time_now + 30 ) ){
-        make_measurement_continous() ;
+        //make_measurement_continous() ;
+        my_lidar->takeRange();    // Trigger the next range measurement
     }
     
     my_lidar->waitForBusy();                  // 1. Wait
@@ -43,6 +48,8 @@ float lidar_t::make_measurement(){
         
     dist = (float)distance_raw * 0.01 ;           // converts from [cm] to [m]
 
+    dist_average = dist ;
+    
     return dist ;
 }
 
@@ -53,8 +60,9 @@ void lidar_t::configure(){
     unsigned long time_now = millis() ;  
 
     // loop for 100ms
-    while( millis() < (time_now + 500 ) ){
+    while( millis() < (time_now + 1000 ) ){
         make_measurement_continous() ;
+        //my_lidar->takeRange();    // Trigger the next range measurement
     }
     
 }
@@ -75,22 +83,44 @@ void therm_ir_t::configure(){
     }
 
     my_therm_ir->setUnit(TEMP_C);       // set the library's units to Celsius
-    
+
+    object_temp_average = make_measurement() ;
 }
 
 float therm_ir_t::make_measurement(){
 
     bool status = my_therm_ir->read() ;     // success -> 1, fail -> 0 
-    
+        
     if ( status ){ 
 
         ambient_temp = my_therm_ir->ambient() ;
         object_temp = my_therm_ir->object() ;
-        
     }
 
+    object_temp_average = object_temp ;
+    
     return object_temp ;
         
+}
+
+float therm_ir_t::make_measurement_continous(){
+    
+    bool status = my_therm_ir->read() ;     // success -> 1, fail -> 0 
+    
+    while ( my_therm_ir->read() != 1 ){ 
+
+    }
+    
+    //ambient_temp = my_therm_ir->ambient() ;
+    object_temp = my_therm_ir->object() ;
+
+    //Serial.println(object_temp);
+    
+    object_temp_average = object_temp * 0.01 + object_temp_average * 0.99 ;
+    
+
+    return object_temp_average ;
+
 }
 
 
@@ -107,7 +137,19 @@ float therm_cmos_t::make_measurement(){
     
     ambient_temp = my_therm_cmos->readTemperature();    
     humidity = my_therm_cmos->readHumidity();           
-       
+
+    ambient_temp_average = ambient_temp ;
+    
+    return ambient_temp ;
+}
+
+float therm_cmos_t::make_measurement_continous(){
+    
+    ambient_temp = my_therm_cmos->readTemperature();    
+    humidity = my_therm_cmos->readHumidity();           
+
+    ambient_temp_average = ambient_temp ;
+    
     return ambient_temp ;
 }
 
@@ -127,10 +169,26 @@ void puit_t::configure(){
 }
 
 void puit_t::make_measurement(){
+    int i;
 
     lidar.make_measurement();
-    ir_sensor.make_measurement(); 
-    cmos_sensor.make_measurement();   
+    ir_sensor.make_measurement() ; 
+    cmos_sensor.make_measurement() ;   
+    
+    for(i = 0 ; i < 10 ; i++)    
+        lidar.make_measurement_continous() ;
+
+    //Serial.print("end lidar \n") ;
+    
+    for(i = 0 ; i < 10 ; i++) {   
+        ir_sensor.make_measurement_continous() ; 
+        delay(100);
+    }    
+    //Serial.print("end IR \n") ;
+    for(i = 0 ; i < 1 ; i++)    
+        cmos_sensor.make_measurement_continous() ; 
+
+    //Serial.print("end cmos \n") ;
 
 }
 
