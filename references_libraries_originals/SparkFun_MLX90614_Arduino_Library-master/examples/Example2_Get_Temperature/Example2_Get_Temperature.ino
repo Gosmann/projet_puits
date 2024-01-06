@@ -59,9 +59,9 @@ void loop()
 	// temperatures.
 	// They'll be floats, calculated out to the unit you set with setUnit().
     Serial.print("Object: " + String(therm.object(), 2));
-    Serial.println("F");
+    Serial.println("C");
     Serial.print("Ambient: " + String(therm.ambient(), 2));
-    Serial.println("F");
+    Serial.println("C");
     Serial.println();
   }
   digitalWrite(LED_BUILTIN, LOW);

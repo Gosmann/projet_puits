@@ -20,7 +20,7 @@ float lidar_t::make_measurement_continous(){
 
         dist = (float)distance_raw * 0.01 ;     // converts from [cm] to [m]
         
-        dist_average = dist * 0.1 + dist_average * 0.9 ;
+        dist_average = dist * 0.01 + dist_average * 0.99 ;
     }
 
     return dist_average ;
@@ -55,7 +55,7 @@ float lidar_t::make_measurement(){
 
 void lidar_t::configure(){
 
-    my_lidar->configure(0);  
+    my_lidar->configure(5);  
     
     unsigned long time_now = millis() ;  
 
@@ -116,9 +116,8 @@ float therm_ir_t::make_measurement_continous(){
 
     //Serial.println(object_temp);
     
-    object_temp_average = object_temp * 0.01 + object_temp_average * 0.99 ;
+    object_temp_average = object_temp * 0.1 + object_temp_average * 0.9 ;
     
-
     return object_temp_average ;
 
 }
@@ -175,9 +174,10 @@ void puit_t::make_measurement(){
     ir_sensor.make_measurement() ; 
     cmos_sensor.make_measurement() ;   
     
-    for(i = 0 ; i < 10 ; i++)    
+    for(i = 0 ; i < 100 ; i++){
         lidar.make_measurement_continous() ;
-
+    }
+        
     //Serial.print("end lidar \n") ;
     
     for(i = 0 ; i < 10 ; i++) {   

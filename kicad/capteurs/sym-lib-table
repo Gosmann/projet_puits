@@ -1,0 +1,5 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "Library_puits")(type "KiCad")(uri "${KIPRJMOD}/Library_puits.kicad_sym")(options "")(descr ""))
+  (lib (name "BLF740")(type "KiCad")(uri "${KIPRJMOD}/BLF740.kicad_sym")(options "")(descr ""))
+)
